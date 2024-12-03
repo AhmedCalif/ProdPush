@@ -1,0 +1,21 @@
+{
+  "name": "package.json",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.1",
+    "@kinde-oss/kinde-typescript-sdk": "^2.9.1",
+    "@libsql/client": "^0.14.0",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.29.0",
+    "drizzle-orm": "^0.37.0",
+    "hono": "^4.6.12",
+    "zod": "^3.23.8"
+  }
+}
