@@ -8,9 +8,9 @@ export interface User {
     given_name: string;
     family_name: string;
     updated_at: number;
-    email_verified: number;
+    email_verified: boolean;
     preferred_username: string | null;
-    createdAt: number;
+    createdAt: string;
 }
 
 export type AuthHono = {
@@ -65,4 +65,25 @@ export class AuthError extends Error {
     super(message);
     this.name = 'AuthError';
   }
+}
+
+export interface APIProfile {
+    id: string;
+    sub: string;
+    name: string;
+    email: string;
+    picture: string | null;
+    given_name: string;
+    family_name: string;
+    updated_at: number;
+    email_verified: boolean;
+    preferred_username: string | null;
+    createdAt: string;
+    bio?: string | null;
+    avatar?: string | null;
+}
+
+export interface UpdateProfileInput {
+    bio?: string | null;
+    avatar?: string | null;
 }

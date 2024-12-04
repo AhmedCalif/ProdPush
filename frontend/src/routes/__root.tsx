@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-router";
 import { type QueryClient } from "@tanstack/react-query"
 import NavBar from "@/components/NavBar";
-import { useAuth } from "@/hooks/useAuth";
 
 
 
@@ -20,7 +19,6 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 
 function Root() {
-  const {user} = useAuth()
   return (
       <>
        <NavBar />
@@ -31,7 +29,7 @@ function Root() {
 
           <footer className="bg-gray-800 text-white w-screen p-4 mt-auto">
             <div className="max-w-7xl mx-auto">
-              {user?.given_name}
+              © 2024 ProdPush
             </div>
           </footer>
       </>

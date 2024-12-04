@@ -1,5 +1,5 @@
 import { api } from "./api";
-import {  type LoginResponse, type User, AuthError, type GetMeType } from "@/types/UserTypes";
+import {  type LoginResponse, type User, AuthError, type GetMeType, UpdateProfileInput , APIProfile} from "@/types/UserTypes";
 import  { type ApiResponse } from "@/types/ApiTypes";
 
 
@@ -73,4 +73,21 @@ export async function getMe(): Promise<ApiResponse<User>> {
     if (error instanceof AuthError) throw error;
     throw new AuthError('User data request failed');
   }
+}
+
+
+export async function updateProfile(input: UpdateProfileInput): Promise<ApiResponse<APIProfile>> {
+    const res = await api.auth.me.$patch({
+        json: input
+    });
+
+    if (!res.ok) {
+        throw new AuthError('Failed to update profile', res.status);
+    }
+
+    const data = await res.json();
+    return {
+        success: true,
+        data: data.data
+    };
 }

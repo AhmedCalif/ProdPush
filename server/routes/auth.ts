@@ -3,7 +3,7 @@ import { kindeClient, sessionManager, getUser } from "../kinde";
 import { type User } from "@frontend/types/UserTypes";
 import { db } from "../db/index";
 import { users } from "../db/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq} from "drizzle-orm";
 
 
 export const authRoute = new Hono()
@@ -65,4 +65,26 @@ export const authRoute = new Hono()
       user: user || null,
       isAuthenticated: !!user
     }, user ? 200 : 401);
+  })
+  .patch("/me", getUser, async (c: Context) => {
+    const user = c.get("user");
+    if (!user) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const body = await c.req.json();
+
+    const updatedUser = await db
+      .update(users)
+      .set({
+        ...body,
+        updated_at: sql`CAST(strftime('%s', 'now') AS INTEGER)`
+      })
+      .where(eq(users.id, user.id))
+      .returning();
+
+    return c.json({
+      success: true,
+      data: updatedUser[0]
+    });
   });
