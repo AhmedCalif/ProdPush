@@ -44,7 +44,25 @@ export type AuthHono = {
   }
 }
 
- export interface AuthData {
-  isAuthenticated: boolean
-  user?: User
+export interface AuthData {
+  user: User | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginResponse {
+  user: User;
+  token: string;
+}
+
+export interface GetMeType {
+  user: User;
+  isAuthenticated: boolean;
+}
+
+
+export class AuthError extends Error {
+  constructor(message: string, public statusCode?: number) {
+    super(message);
+    this.name = 'AuthError';
+  }
 }
