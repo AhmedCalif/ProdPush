@@ -13,9 +13,9 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as AuthenicatedImport } from './routes/_authenicated'
-import { Route as AuthenicatedTasksImport } from './routes/_authenicated/tasks'
-import { Route as AuthenicatedProfileImport } from './routes/_authenicated/profile'
+import { Route as AuthenticatedImport } from "./routes/_authenticated"
+import { Route as AuthenticatedTasksImport } from './routes/_authenticated/tasks'
+import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'
 
 // Create Virtual Routes
 
@@ -23,8 +23,8 @@ const IndexLazyImport = createFileRoute('/')()
 
 // Create/Update Routes
 
-const AuthenicatedRoute = AuthenicatedImport.update({
-  id: '/_authenicated',
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -34,16 +34,16 @@ const IndexLazyRoute = IndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const AuthenicatedTasksRoute = AuthenicatedTasksImport.update({
+const AuthenticatedTasksRoute = AuthenticatedTasksImport.update({
   id: '/tasks',
   path: '/tasks',
-  getParentRoute: () => AuthenicatedRoute,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
-const AuthenicatedProfileRoute = AuthenicatedProfileImport.update({
+const AuthenticatedProfileRoute = AuthenticatedProfileImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => AuthenicatedRoute,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -57,66 +57,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/_authenicated': {
-      id: '/_authenicated'
+    '/_authenticated': {
+      id: '/_authenticated'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthenicatedImport
+      preLoaderRoute: typeof AuthenticatedImport
       parentRoute: typeof rootRoute
     }
-    '/_authenicated/profile': {
-      id: '/_authenicated/profile'
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof AuthenicatedProfileImport
-      parentRoute: typeof AuthenicatedImport
+      preLoaderRoute: typeof AuthenticatedProfileImport
+      parentRoute: typeof AuthenticatedImport
     }
-    '/_authenicated/tasks': {
-      id: '/_authenicated/tasks'
+    '/_authenticated/tasks': {
+      id: '/_authenticated/tasks'
       path: '/tasks'
       fullPath: '/tasks'
-      preLoaderRoute: typeof AuthenicatedTasksImport
-      parentRoute: typeof AuthenicatedImport
+      preLoaderRoute: typeof AuthenticatedTasksImport
+      parentRoute: typeof AuthenticatedImport
     }
   }
 }
 
 // Create and export the route tree
 
-interface AuthenicatedRouteChildren {
-  AuthenicatedProfileRoute: typeof AuthenicatedProfileRoute
-  AuthenicatedTasksRoute: typeof AuthenicatedTasksRoute
+interface AuthenticatedRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
 }
 
-const AuthenicatedRouteChildren: AuthenicatedRouteChildren = {
-  AuthenicatedProfileRoute: AuthenicatedProfileRoute,
-  AuthenicatedTasksRoute: AuthenicatedTasksRoute,
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedTasksRoute: AuthenticatedTasksRoute,
 }
 
-const AuthenicatedRouteWithChildren = AuthenicatedRoute._addFileChildren(
-  AuthenicatedRouteChildren,
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
 )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
-  '': typeof AuthenicatedRouteWithChildren
-  '/profile': typeof AuthenicatedProfileRoute
-  '/tasks': typeof AuthenicatedTasksRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/profile': typeof AuthenticatedProfileRoute
+  '/tasks': typeof AuthenticatedTasksRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
-  '': typeof AuthenicatedRouteWithChildren
-  '/profile': typeof AuthenicatedProfileRoute
-  '/tasks': typeof AuthenicatedTasksRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/profile': typeof AuthenticatedProfileRoute
+  '/tasks': typeof AuthenticatedTasksRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
-  '/_authenicated': typeof AuthenicatedRouteWithChildren
-  '/_authenicated/profile': typeof AuthenicatedProfileRoute
-  '/_authenicated/tasks': typeof AuthenicatedTasksRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/tasks': typeof AuthenticatedTasksRoute
 }
 
 export interface FileRouteTypes {
@@ -127,20 +127,20 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/_authenicated'
-    | '/_authenicated/profile'
-    | '/_authenicated/tasks'
+    | '/_authenticated'
+    | '/_authenticated/profile'
+    | '/_authenticated/tasks'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
-  AuthenicatedRoute: typeof AuthenicatedRouteWithChildren
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
-  AuthenicatedRoute: AuthenicatedRouteWithChildren,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -154,26 +154,26 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/_authenicated"
+        "/_authenticated"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
-    "/_authenicated": {
-      "filePath": "_authenicated.tsx",
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
       "children": [
-        "/_authenicated/profile",
-        "/_authenicated/tasks"
+        "/_authenticated/profile",
+        "/_authenticated/tasks"
       ]
     },
-    "/_authenicated/profile": {
-      "filePath": "_authenicated/profile.tsx",
-      "parent": "/_authenicated"
+    "/_authenticated/profile": {
+      "filePath": "_authenticated/profile.tsx",
+      "parent": "/_authenticated"
     },
-    "/_authenicated/tasks": {
-      "filePath": "_authenicated/tasks.tsx",
-      "parent": "/_authenicated"
+    "/_authenticated/tasks": {
+      "filePath": "_authenticated/tasks.tsx",
+      "parent": "/_authenticated"
     }
   }
 }

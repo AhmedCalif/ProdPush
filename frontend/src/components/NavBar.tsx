@@ -17,7 +17,7 @@ export default function NavBar() {
     const userNavigation = [
         { name: 'Your Profile', href: '/profile' },
         { name: 'Settings', href: '/settings' },
-        { name: 'Sign out', href: '/logout' },
+        { name: 'Sign out', href: '/api/auth/logout' },
     ]
 
     return (
