@@ -1,5 +1,4 @@
 "use client"
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, MapPin, Link as LinkIcon, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ export function ProfilePage() {
     <div className="w-full max-w-3xl mx-auto px-4">
       <div className="mt-8">
         <div className="relative mb-16">
-          <div className="h-32 w-full rounded-lg bg-gradient-to-r from-purple-700 to-purple-500" />
+          <div className="h-32 w-full rounded-lg bg-gradient-to-r bg-indigo-600" />
           <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2">
             <div className="relative">
               <Avatar className="h-20 w-20 border-2 border-white">
@@ -33,7 +32,7 @@ export function ProfilePage() {
 
           <div className="flex justify-between gap-4">
             <div className="text-center bg-white rounded-lg shadow-sm py-3 px-6">
-              <p className="text-purple-600 text-lg font-semibold">10</p>
+              <p className="text-indigo-500 text-lg font-semibold">10</p>
               <p className="text-gray-500 text-sm">Projects</p>
             </div>
             <div className="text-center bg-white rounded-lg shadow-sm py-3 px-6">
@@ -62,7 +61,7 @@ export function ProfilePage() {
             <div className="flex flex-col jutify-center items-center">
             <Button
             variant={"secondary"}
-            className="bg-purple-500 rounded-2xl max-w-lg"
+            className="bg-indigo-500 rounded-2xl max-w-lg"
             >
               Save
             </Button>

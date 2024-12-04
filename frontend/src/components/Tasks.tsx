@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { DeleteTaskInput, Task, TaskStatus, CreateTaskInput, UpdateTaskInput } from "../types/TasksType"
-import { ArrowLeft,  Plus,  Pencil, X, Check, Trash2Icon} from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, X, Check, Trash2Icon } from 'lucide-react'
 import {
   useTasksQuery,
   useCreateTaskMutation,
@@ -99,22 +99,22 @@ function TaskManager() {
       console.error('Failed to update task:', error)
     }
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50 w-screen">
-      <main className="max-w-4xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-10">
+return (
+    <div className="max-w-lg mx-auto min-h-screen bg-white">
+      <main className="p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="icon" className="text-gray-600 bg-white hover:text-indigo-600">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-2xl font-medium text-gray-800">Today's Tasks</h1>
+          <h1 className="text-lg font-medium text-gray-800">Today's Tasks</h1>
           <div className="w-9" />
         </div>
 
-        <div className="flex justify-between gap-4 mb-8">
+        <div className="flex justify-between gap-2 mb-6">
           {[
-            { month: 'Dec', day: '03', weekday: 'Tue', isSelected: true },
-            { month: 'Dec', day: '04', weekday: 'Wed', isSelected: false },
+            { month: 'Dec', day: '03', weekday: 'Tue', isSelected: false },
+            { month: 'Dec', day: '04', weekday: 'Wed', isSelected: true },
             { month: 'Dec', day: '05', weekday: 'Thu', isSelected: false },
             { month: 'Dec', day: '06', weekday: 'Fri', isSelected: false },
             { month: 'Dec', day: '07', weekday: 'Sat', isSelected: false }
@@ -122,41 +122,41 @@ function TaskManager() {
             <button
               key={index}
               className={`
-                flex-1 p-3 rounded-2xl flex flex-col items-center justify-center
-                transition-all duration-200 border-2
+                flex-1 p-2 rounded-xl flex flex-col items-center justify-center
+                transition-all duration-200 border
                 ${date.isSelected
-                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                  : 'bg-white text-gray-600 border-transparent hover:border-indigo-200'}
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'bg-white text-gray-600 border-gray-100 hover:border-indigo-200'}
               `}
             >
-              <span className="text-xs font-medium mb-1">{date.month}</span>
-              <span className="text-xl font-bold">{date.day}</span>
-              <span className="text-xs font-medium mt-1">{date.weekday}</span>
+              <span className="text-xs font-medium">{date.month}</span>
+              <span className="text-lg font-bold">{date.day}</span>
+              <span className="text-xs font-medium">{date.weekday}</span>
             </button>
           ))}
         </div>
 
-        <div className="flex gap-2 mb-8">
+        {/* Filters */}
+        <div className="flex gap-2 mb-6">
           {['all', 'todo', 'in-progress', 'completed'].map((filter) => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter as any)}
               className={`
-                px-5 py-2 rounded-full text-sm font-medium transition-all duration-200
+                px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200
                 ${activeFilter === filter
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'bg-white text-gray-600 hover:bg-indigo-50'}
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'}
               `}
             >
               {filter === 'in-progress' ? 'In-progress' : filter.charAt(0).toUpperCase() + filter.slice(1)}
             </button>
           ))}
         </div>
-
-        <div className="space-y-4 mb-24">
+        <div className="space-y-3">
           {filteredTasks.map((task: Task) => (
-            <Card key={task.id} className="bg-white/70 backdrop-blur-sm border-0 shadow-sm hover:shadow transition-all">
-              <CardContent className="p-5">
+            <Card key={task.id} className="bg-white border border-gray-100">
+              <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     {editingTask?.id === task.id ? (
@@ -197,13 +197,13 @@ function TaskManager() {
                     ) : (
                       <>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-gray-800 flex-1">{task.title}</h3>
-                          <div className="flex gap-2">
+                          <h3 className="font-medium text-gray-800  flex-1">{task.title}</h3>
+                          <div className="flex gap-1">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditClick(task)}
-                              className="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50"
+                              className="text-gray-400 bg-white hover:text-indigo-600 hover:bg-indigo-50"
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
@@ -211,9 +211,9 @@ function TaskManager() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteTask(task.id)}
-                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                              className="text-gray-400 bg-white hover:text-red-600 hover:bg-red-50"
                             >
-                             <Trash2Icon className="w-4 h-4"/>
+                              <Trash2Icon className="w-4 h-4"/>
                             </Button>
                           </div>
                         </div>
@@ -223,8 +223,8 @@ function TaskManager() {
 
                     <div className="flex items-center gap-4 mt-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-                        <span className="text-sm text-gray-500">
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
+                        <span className="text-xs text-gray-500">
                           {task.dueDate && new Date(task.dueDate).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit'
@@ -236,12 +236,12 @@ function TaskManager() {
                         value={String(task.status)}
                         onChange={(e) => handleStatusUpdate(task.id, e.target.value as TaskStatus)}
                         className={`
-                          text-sm px-4 py-1.5 rounded-full border-0 cursor-pointer transition-colors
+                          text-xs px-3 py-1 rounded-full border-0 cursor-pointer transition-colors
                           ${task.status === TaskStatus.COMPLETED
-                            ? 'bg-green-100 text-green-600 hover:bg-green-200'
+                            ? 'bg-green-50 text-green-600'
                             : task.status === TaskStatus.IN_PROGRESS
-                            ? 'bg-indigo-100 text-indigo-600 hover:bg-indigo-200'
-                            : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}
+                            ? 'bg-indigo-50 text-indigo-600'
+                            : 'bg-blue-50 text-blue-600'}
                         `}
                       >
                         <option value={TaskStatus.TODO}>Todo</option>
@@ -255,17 +255,18 @@ function TaskManager() {
             </Card>
           ))}
         </div>
+      </main>
 
+      <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2">
         <Button
           size="icon"
           onClick={handleCreateTask}
-          className="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+          className="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
         >
           <Plus className="h-6 w-6" />
         </Button>
-      </main>
+      </div>
     </div>
   )
 }
-
 export default TaskManager
