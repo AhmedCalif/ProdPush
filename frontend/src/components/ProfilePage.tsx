@@ -1,93 +1,77 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, MapPin, Link, Calendar, Camera, Plus, Users, Settings } from "lucide-react";
+import { Mail, MapPin, Link, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProfile } from '@/hooks/useProfile';
 
- export function ProfilePage () {
-const {profile} = useProfile()
+export function ProfilePage() {
+  const { profile } = useProfile()
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-b from-purple-500 to-purple-600 h-48 relative">
-        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
+    <div className="container mx-auto py-8 mt-8">
+      <div className="relative mb-8">
+        <div className="h-48 rounded-lg bg-gradient-to-r bg-black to-purple-600" />
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-16">
           <div className="relative">
-            <Avatar className="w-32 h-32 border-4 border-white">
+            <Avatar className="h-32 w-32 border-4 border-white">
               <AvatarImage src="/api/placeholder/128/128" />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarFallback>AC</AvatarFallback>
             </Avatar>
             <Button
               size="icon"
               variant="secondary"
               className="absolute bottom-0 right-0 rounded-full bg-white hover:bg-gray-100"
             >
-              <Camera className="w-4 h-4 text-purple-600" />
+              <Camera className="h-4 w-4 text-purple-600" />
             </Button>
           </div>
         </div>
       </div>
-      <div className="mt-20 px-4 space-y-6">
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold">{profile?.given_name} {profile?.family_name} </h1>
-          <p className="text-gray-500">Product Designer</p>
+
+      <div className="mt-20 space-y-6">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold">{profile?.name}</h1>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <Card className="bg-white shadow-sm">
+            <CardContent className="p-4 text-center">
+              <p className="text-xl font-semibold text-purple-600">10</p> {/*// TODO: Make Project Data Real  */}
+              <p className="text-sm text-gray-500">Projects</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-white shadow-sm">
+            <CardContent className="p-4 text-center">
+              <p className="text-xl font-semibold text-purple-600">5.2k</p>    {/*// TODO: Make Tasks Data Real  */}
+              <p className="text-sm text-gray-500">Tasks</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-white shadow-sm">
+            <CardContent className="p-4 text-center">
+              <p className="text-xl font-semibold text-purple-600">42</p>
+              <p className="text-sm text-gray-500">Following</p>
+            </CardContent>
+          </Card>
         </div>
 
         <Card className="bg-white shadow-sm">
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="p-6 space-y-4">
             <div className="flex items-center gap-3 text-gray-600">
-              <Mail className="w-5 h-5 text-purple-500" />
-              <span>jane.cooper@example.com</span>
+              <Mail className="h-5 w-5 text-purple-500" />
+              <span>{profile?.email}</span>
             </div>
             <div className="flex items-center gap-3 text-gray-600">
-              <MapPin className="w-5 h-5 text-purple-500" />
+              <MapPin className="h-5 w-5 text-purple-500" />
               <span>San Francisco, CA</span>
             </div>
             <div className="flex items-center gap-3 text-gray-600">
-              <Link className="w-5 h-5 text-purple-500" />
+              <Link className="h-5 w-5 text-purple-500" />
               <span>portfolio.design</span>
             </div>
           </CardContent>
         </Card>
-
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="bg-white p-4 text-center">
-            <p className="text-xl font-semibold text-purple-600">124</p>
-            <p className="text-sm text-gray-500">Projects</p>
-          </Card>
-          <Card className="bg-white p-4 text-center">
-            <p className="text-xl font-semibold text-purple-600">5.2k</p>
-            <p className="text-sm text-gray-500">Followers</p>
-          </Card>
-          <Card className="bg-white p-4 text-center">
-            <p className="text-xl font-semibold text-purple-600">42</p>
-            <p className="text-sm text-gray-500">Following</p>
-          </Card>
-        </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
-        <div className="flex justify-around items-center">
-          <Button variant="ghost" size="icon" className="text-purple-600">
-            <Calendar className="w-6 h-6" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-gray-400">
-            <Mail className="w-6 h-6" />
-          </Button>
-          <Button
-            className="rounded-full bg-purple-600 hover:bg-purple-700 -mt-8 shadow-lg"
-            size="icon"
-          >
-            <Plus className="w-6 h-6 text-white" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-gray-400">
-            <Users className="w-6 h-6" />
-          </Button>
-          <Button variant="ghost" size="icon" className="text-gray-400">
-            <Settings className="w-6 h-6" />
-          </Button>
-        </div>
       </div>
-    </div>
   );
-};
+}

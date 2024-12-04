@@ -72,7 +72,7 @@ export interface APIProfile {
     sub: string;
     name: string;
     email: string;
-    picture: string | null;
+    picture: string | null | undefined;
     given_name: string;
     family_name: string;
     updated_at: number;

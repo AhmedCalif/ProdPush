@@ -17,21 +17,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 });
 
 
-
 function Root() {
   return (
-      <>
-       <NavBar />
-          <main className="flex-1 p-2 m-auto min-h-screen w-screen max-w-7xl">
-            <Outlet />
-
-          </main>
-
-          <footer className="bg-gray-800 text-white w-screen p-4 mt-auto">
-            <div className="max-w-7xl mx-auto">
-              © 2024 ProdPush
-            </div>
-          </footer>
-      </>
-    )
-  }
+    <div className="flex min-h-screen flex-col">
+      <NavBar />
+      <div className="flex flex-1 flex-col pt-6"> 
+        <main className="w-screen">
+          <Outlet />
+        </main>
+      </div>
+      <footer className="bg-gray-800 text-white w-full p-4">
+        <div className="max-w-7xl mx-auto">
+          © 2024 ProdPush
+        </div>
+      </footer>
+    </div>
+  );
+}
