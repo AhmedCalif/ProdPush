@@ -32,12 +32,32 @@ export const tasks = sqliteTable('tasks', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   title: text('title').notNull(),
   description: text('description'),
-  projectId: integer('project_id').references(() => projects.id),
+  projectId: integer('project_id')
+    .references(() => projects.id)
+    .notNull(),  // Made required since tasks must belong to a project
   assignedTo: text('assigned_to').references(() => users.id),
   status: text('status'),
   priority: text('priority'),
   dueDate: integer('due_date', { mode: 'timestamp' }),
   createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const notes = sqliteTable('notes', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  projectId: integer('project_id')
+    .references(() => projects.id)
+    .notNull(),  // Added projectId reference
+  userId: text('user_id')
+    .references(() => users.id)
+    .notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
     .$defaultFn(() => new Date()),
 });
@@ -49,19 +69,6 @@ export const projectMembers = sqliteTable('project_members', {
 }, (table) => ({
   pk: primaryKey(table.projectId, table.userId),
 }));
-export const notes = sqliteTable('notes', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  userId: text('user_id').notNull(),
-});
-
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

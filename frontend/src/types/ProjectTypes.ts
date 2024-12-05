@@ -1,4 +1,8 @@
 import type { User } from "./UserTypes";
+import { Task } from "./TasksType";
+import { Note } from "./NoteTypes";
+
+
 export interface Project {
   id: number;
   name: string;
@@ -7,6 +11,8 @@ export interface Project {
   status: string | null;
   dueDate: string | null;
   createdAt: string;
+  tasks: Task[]
+  notes: Note[]
 }
 
 export enum ProjectStatus {
@@ -37,6 +43,8 @@ export interface CreateProjectInput {
   ownerId: string | null;
   status: ProjectStatus | null;
   dueDate: Date | null;
+  tasks: Task[]
+  notes: Note[]
 }
 
 export interface UpdateProjectInput {
@@ -46,6 +54,8 @@ export interface UpdateProjectInput {
   ownerId?: string | null;
   status?: ProjectStatus | null;
   dueDate?: Date | null;
+  tasks: Task[]
+  notes: Note[]
 }
 export interface DeleteProjectInput {
   id: number
