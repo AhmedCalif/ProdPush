@@ -21,7 +21,7 @@ import { Route as AuthenticatedProjectIdImport } from './routes/_authenticated/p
 
 // Create Virtual Routes
 
-const IndexLazyImport = createFileRoute('/')()
+const AuthenticatedIndexLazyImport = createFileRoute('/_authenticated/')()
 
 // Create/Update Routes
 
@@ -30,11 +30,13 @@ const AuthenticatedRoute = AuthenticatedImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexLazyRoute = IndexLazyImport.update({
+const AuthenticatedIndexLazyRoute = AuthenticatedIndexLazyImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+  getParentRoute: () => AuthenticatedRoute,
+} as any).lazy(() =>
+  import('./routes/_authenticated/index.lazy').then((d) => d.Route),
+)
 
 const AuthenticatedTasksRoute = AuthenticatedTasksImport.update({
   id: '/tasks',
@@ -64,13 +66,6 @@ const AuthenticatedProjectIdRoute = AuthenticatedProjectIdImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
@@ -99,6 +94,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksImport
       parentRoute: typeof AuthenticatedImport
     }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexLazyImport
+      parentRoute: typeof AuthenticatedImport
+    }
     '/_authenticated/project/$id': {
       id: '/_authenticated/project/$id'
       path: '/project/$id'
@@ -115,6 +117,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedProjectsRoute: typeof AuthenticatedProjectsRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
+  AuthenticatedIndexLazyRoute: typeof AuthenticatedIndexLazyRoute
   AuthenticatedProjectIdRoute: typeof AuthenticatedProjectIdRoute
 }
 
@@ -122,6 +125,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedProjectsRoute: AuthenticatedProjectsRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
+  AuthenticatedIndexLazyRoute: AuthenticatedIndexLazyRoute,
   AuthenticatedProjectIdRoute: AuthenticatedProjectIdRoute,
 }
 
@@ -130,56 +134,53 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 )
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
   '': typeof AuthenticatedRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/': typeof AuthenticatedIndexLazyRoute
   '/project/$id': typeof AuthenticatedProjectIdRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
-  '': typeof AuthenticatedRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/projects': typeof AuthenticatedProjectsRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/': typeof AuthenticatedIndexLazyRoute
   '/project/$id': typeof AuthenticatedProjectIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/projects': typeof AuthenticatedProjectsRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
+  '/_authenticated/': typeof AuthenticatedIndexLazyRoute
   '/_authenticated/project/$id': typeof AuthenticatedProjectIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/profile' | '/projects' | '/tasks' | '/project/$id'
+  fullPaths: '' | '/profile' | '/projects' | '/tasks' | '/' | '/project/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/profile' | '/projects' | '/tasks' | '/project/$id'
+  to: '/profile' | '/projects' | '/tasks' | '/' | '/project/$id'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
     | '/_authenticated/profile'
     | '/_authenticated/projects'
     | '/_authenticated/tasks'
+    | '/_authenticated/'
     | '/_authenticated/project/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
 }
 
@@ -193,12 +194,8 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
         "/_authenticated"
       ]
-    },
-    "/": {
-      "filePath": "index.lazy.tsx"
     },
     "/_authenticated": {
       "filePath": "_authenticated.tsx",
@@ -206,6 +203,7 @@ export const routeTree = rootRoute
         "/_authenticated/profile",
         "/_authenticated/projects",
         "/_authenticated/tasks",
+        "/_authenticated/",
         "/_authenticated/project/$id"
       ]
     },
@@ -219,6 +217,10 @@ export const routeTree = rootRoute
     },
     "/_authenticated/tasks": {
       "filePath": "_authenticated/tasks.tsx",
+      "parent": "/_authenticated"
+    },
+    "/_authenticated/": {
+      "filePath": "_authenticated/index.lazy.tsx",
       "parent": "/_authenticated"
     },
     "/_authenticated/project/$id": {
