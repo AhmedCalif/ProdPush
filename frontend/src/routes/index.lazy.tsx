@@ -1,9 +1,8 @@
 import { createLazyFileRoute } from '@tanstack/react-router'
+import { KanbanBoard } from '@/components/HomePage'
 
 export const Route = createLazyFileRoute('/')({
-  component: RouteComponent,
+  component: KanbanBoard,
 })
 
-function RouteComponent() {
-  return <div>Hello "/"!</div>
-}
+
