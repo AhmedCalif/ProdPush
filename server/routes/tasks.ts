@@ -10,7 +10,7 @@ import { tasks } from '../db/schema';
 const taskSchema = z.object({
     title: z.string().min(1),
     description: z.string().nullable(),
-    projectId: z.number().nullable(),
+    projectId: z.number(),
     assignedTo: z.string().nullable(),
     status: z.enum(['TODO', 'IN_PROGRESS', 'COMPLETED']).nullable(),
     priority: z.enum(['LOW', 'MEDIUM', 'HIGH']).nullable(),
@@ -57,7 +57,7 @@ export const tasksRoute = new Hono()
         }
     })
 
-    .post('/', zValidator('json', taskSchema), async (c) => {
+      .post('/', zValidator('json', taskSchema), async (c) => {
         try {
             const data = await c.req.valid('json');
 
@@ -65,12 +65,12 @@ export const tasksRoute = new Hono()
                 .insert(tasks)
                 .values({
                     title: data.title,
-                    description: data.description,
+                    description: data.description ?? undefined,
                     projectId: data.projectId,
-                    assignedTo: data.assignedTo,
-                    status: data.status,
-                    priority: data.priority,
-                    dueDate: data.dueDate ? new Date(data.dueDate) : null,
+                    assignedTo: data.assignedTo ?? undefined,
+                    status: data.status ?? undefined,
+                    priority: data.priority ?? undefined,
+                    dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
                     createdAt: new Date(),
                 })
                 .returning();
@@ -96,17 +96,19 @@ export const tasksRoute = new Hono()
             const id = parseInt(c.req.param('id'), 10);
             const data = await c.req.valid('json');
 
+            const updateData = {
+                ...(data.title !== undefined && { title: data.title }),
+                ...(data.description !== undefined && { description: data.description ?? undefined }),
+                ...(data.projectId !== undefined && { projectId: data.projectId ?? undefined }),
+                ...(data.assignedTo !== undefined && { assignedTo: data.assignedTo ?? undefined }),
+                ...(data.status !== undefined && { status: data.status ?? undefined }),
+                ...(data.priority !== undefined && { priority: data.priority ?? undefined }),
+                ...(data.dueDate !== undefined && { dueDate: data.dueDate ? new Date(data.dueDate) : undefined }),
+            };
+
             const [updatedTask] = await db
                 .update(tasks)
-                .set({
-                    title: data.title,
-                    description: data.description,
-                    projectId: data.projectId,
-                    assignedTo: data.assignedTo,
-                    status: data.status,
-                    priority: data.priority,
-                    dueDate: data.dueDate ? new Date(data.dueDate) : null,
-                })
+                .set(updateData)
                 .where(eq(tasks.id, id))
                 .returning();
 
@@ -133,6 +135,7 @@ export const tasksRoute = new Hono()
             return c.json(response, 500);
         }
     })
+
 
     .delete('/:id', async (c) => {
         try {

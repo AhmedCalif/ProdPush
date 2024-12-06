@@ -27,11 +27,11 @@ function BottomNav() {
             <span className="text-[10px] font-medium">Home</span>
           </Link>
           <Link
-            to="/"
+            to="/projects"
             className="flex flex-col items-center gap-0.5 p-1 text-gray-400 hover:text-purple-500"
           >
             <Calendar className="h-5 w-5" />
-            <span className="text-[10px] font-medium">Calendar</span>
+            <span className="text-[10px] font-medium">Projects</span>
           </Link>
           <Link
             to="/tasks"

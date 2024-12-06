@@ -22,7 +22,7 @@ export interface Task {
   id: number;
   title: string;
   description: string | null;
-  projectId: number | null;
+  projectId: number | undefined;
   assignedTo: string | null;
   status: TaskStatus | null;
   priority: TaskPriority | null;
@@ -33,7 +33,7 @@ export interface Task {
 export interface CreateTaskInput {
   title: string;
   description?: string | null;
-  projectId?: number | null;
+  projectId?: number | undefined;
   assignedTo?: string | null;
   status?: TaskStatus | null;
   priority?: TaskPriority | null;

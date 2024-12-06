@@ -13,7 +13,7 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { authenticatedRoute as AuthenticatedImport } from './routes/_authenticated'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as AuthenticatedTasksImport } from './routes/_authenticated/tasks'
 import { Route as AuthenticatedProjectsImport } from './routes/_authenticated/projects'
 import { Route as AuthenticatedProfileImport } from './routes/_authenticated/profile'

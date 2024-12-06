@@ -3,11 +3,13 @@
 export interface Note {
   id: number;
   title: string;
+  content: string;
+  projectId: number;
   userId: string;
-  content: string
-  createdAt: string | null;
-  updatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
+
 
 export interface CreateNoteInput {
   title: string;

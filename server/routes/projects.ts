@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { projects, users } from "../db/schema";
+import { projects, users, tasks, notes } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from '@hono/zod-validator';
@@ -10,6 +10,8 @@ import {
   type CreateProjectInput,
   ProjectStatus
 } from  "@frontend/types/ProjectTypes"
+import type { Task, TaskStatus } from "@frontend/types/TasksType"
+import type { Note } from "@frontend/types/NoteTypes";
 
 const projectSchema = z.object({
   name: z.string().min(1),
@@ -19,6 +21,30 @@ const projectSchema = z.object({
   dueDate: z.coerce.date().nullable()
 });
 
+
+
+const mapDbTaskToApiTask = (dbTask: typeof tasks.$inferSelect): Task => ({
+  id: dbTask.id,
+  title: dbTask.title,
+  description: dbTask.description,
+  projectId: dbTask.projectId,
+  assignedTo: dbTask.assignedTo,
+  status: dbTask.status as TaskStatus | null,
+  priority: dbTask.priority as Task['priority'],
+  dueDate: dbTask.dueDate ? new Date(dbTask.dueDate).toISOString() : null,
+  createdAt: new Date(dbTask.createdAt).toISOString()
+});
+
+const mapDbNoteToApiNote = (dbNote: typeof notes.$inferSelect): Note => ({
+  id: dbNote.id,
+  title: dbNote.title,
+  content: dbNote.content,
+  projectId: dbNote.projectId,
+  userId: dbNote.userId,
+  createdAt: new Date(dbNote.createdAt).toISOString(),
+  updatedAt: new Date(dbNote.updatedAt).toISOString()
+});
+
 export const projectsRoute = new Hono()
   .get("/", async (c) => {
     try {
@@ -26,19 +52,35 @@ export const projectsRoute = new Hono()
         .select()
         .from(projects);
 
+      const projectsWithRelations = await Promise.all(
+        projectsList.map(async (p) => {
+          const projectTasks = await db
+            .select()
+            .from(tasks)
+            .where(eq(tasks.projectId, p.id));
+
+          const projectNotes = await db
+            .select()
+            .from(notes)
+            .where(eq(notes.projectId, p.id));
+
+          return {
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            ownerId: p.ownerId,
+            status: p.status as ProjectStatus | null,
+            dueDate: p.dueDate ? new Date(p.dueDate).toISOString() : null,
+            createdAt: new Date(p.createdAt).toISOString(),
+            tasks: projectTasks.map(mapDbTaskToApiTask),
+            notes: projectNotes.map(mapDbNoteToApiNote)
+          };
+        })
+      );
+
       const response: ApiResponse<Project[]> = {
         success: true,
-        data: projectsList.map(p => ({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          ownerId: p.ownerId,
-          status: p.status as ProjectStatus | null,
-          dueDate: p.dueDate ? new Date(p.dueDate).toISOString() : null,
-          createdAt: new Date(p.createdAt).toISOString(),
-          tasks: [],
-          notes: []
-        })),
+        data: projectsWithRelations,
         error: null
       };
 
@@ -67,6 +109,16 @@ export const projectsRoute = new Hono()
         }, 404);
       }
 
+      const projectTasks = await db
+        .select()
+        .from(tasks)
+        .where(eq(tasks.projectId, project.id));
+
+      const projectNotes = await db
+        .select()
+        .from(notes)
+        .where(eq(notes.projectId, project.id));
+
       const response: ApiResponse<Project> = {
         success: true,
         data: {
@@ -77,8 +129,8 @@ export const projectsRoute = new Hono()
           status: project.status as ProjectStatus | null,
           dueDate: project.dueDate ? new Date(project.dueDate).toISOString() : null,
           createdAt: new Date(project.createdAt).toISOString(),
-          tasks: [],
-          notes: []
+          tasks: projectTasks.map(mapDbTaskToApiTask),
+          notes: projectNotes.map(mapDbNoteToApiNote)
         }
       };
 

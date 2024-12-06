@@ -21,11 +21,12 @@ export async function getTasks(): Promise<ApiResponse<Task[]>> {
 }
 
 export async function createTask(input: CreateTaskInput): Promise<ApiResponse<Task>> {
+
   const res = await api.tasks.$post({
     json: {
       title: input.title,
       description: input.description ?? null,
-      projectId: input.projectId ?? null,
+     projectId: Number(input.projectId),
       assignedTo: input.assignedTo ?? null,
       status: input.status ?? null,
       priority: input.priority ?? null,
@@ -48,12 +49,13 @@ export async function createTask(input: CreateTaskInput): Promise<ApiResponse<Ta
 }
 
 export async function updateTask(input: UpdateTaskInput): Promise<ApiResponse<Task>> {
+  const projectId = input.projectId ? Number(input.projectId) : undefined
   const res = await api.tasks[':id'].$patch({
     param: { id: input.id.toString() },
     json: {
       title: input.title,
       description: input.description ?? null,
-      projectId: input.projectId ?? null,
+      projectId,
       assignedTo: input.assignedTo ?? null,
       status: input.status ?? null,
       priority: input.priority ?? null,

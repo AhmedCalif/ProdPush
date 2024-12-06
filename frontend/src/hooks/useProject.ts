@@ -18,7 +18,7 @@ import type {
 import { ApiResponse } from '@/types/ApiTypes';
 import type { Project } from '@/types/ProjectTypes';
 
-const projectKeys = {
+export const projectKeys = {
   all: ['projects'] as const,
   lists: () => [...projectKeys.all] as const,
   list: (filters: string) => [...projectKeys.lists(), { filters }] as const,

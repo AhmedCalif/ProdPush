@@ -8,7 +8,7 @@ interface RouteContext {
   user: User | null
 }
 const AuthenticatedLayout = () => {
-  const { user } = authenticatedRoute.useRouteContext() as RouteContext;
+  const { user } = Route.useRouteContext() as RouteContext;
 
   if (!user) {
     return <WelcomePage />;
@@ -22,7 +22,7 @@ const AuthenticatedLayout = () => {
     </div>
   );
 }
-export const authenticatedRoute = createFileRoute('/_authenticated')({
+export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
     const queryClient = context.queryClient
     try {
