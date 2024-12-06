@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckSquare, FileText, Loader2 } from 'lucide-react';
+import { Calendar, CheckSquare, Loader2 } from 'lucide-react';
 import { TaskStatus } from '@/types/TasksType';
 import {
   Dialog,
@@ -320,10 +320,6 @@ const ProjectDetailPage: React.FC = () => {
             <CheckSquare className="w-4 h-4" />
             Tasks
           </TabsTrigger>
-          <TabsTrigger value="notes" className="flex items-center gap-2">
-            <FileText className="w-4 h-4" />
-            Notes
-          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="tasks">
@@ -359,39 +355,6 @@ const ProjectDetailPage: React.FC = () => {
                   ))
                 ) : (
                   <p className="text-center text-gray-500">No tasks yet</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Project Notes
-                <AddNoteDialog projectId={parseInt(id)} onNoteAdded={handleNoteAdded} />
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {project.notes && project.notes.length > 0 ? (
-                  project.notes.map((note) => (
-                    <div
-                      key={note.id}
-                      className="p-4 border rounded-lg"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-medium">{note.title}</h3>
-                        <span className="text-sm text-gray-500">
-                          {String(note.createdAt)}
-                        </span>
-                      </div>
-                      <p className="text-gray-600">{note.content}</p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-center text-gray-500">No notes yet</p>
                 )}
               </div>
             </CardContent>

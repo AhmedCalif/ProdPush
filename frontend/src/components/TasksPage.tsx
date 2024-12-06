@@ -49,6 +49,7 @@ function TaskManager() {
     }
   }
 
+
   const handleDeleteTask = async (id: number) => {
     try {
       const deleteInput: DeleteTaskInput = { id }
@@ -102,7 +103,6 @@ function TaskManager() {
 return (
     <div className="max-w-lg mx-auto min-h-screen bg-white">
       <main className="p-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="icon" className="text-gray-600 bg-white hover:text-indigo-600">
             <ArrowLeft className="w-5 h-5" />
@@ -114,8 +114,8 @@ return (
         <div className="flex justify-between gap-2 mb-6">
           {[
             { month: 'Dec', day: '03', weekday: 'Tue', isSelected: false },
-            { month: 'Dec', day: '04', weekday: 'Wed', isSelected: true },
-            { month: 'Dec', day: '05', weekday: 'Thu', isSelected: false },
+            { month: 'Dec', day: '04', weekday: 'Wed', isSelected: false },
+            { month: 'Dec', day: '05', weekday: 'Thu', isSelected: true },
             { month: 'Dec', day: '06', weekday: 'Fri', isSelected: false },
             { month: 'Dec', day: '07', weekday: 'Sat', isSelected: false }
           ].map((date, index) => (
