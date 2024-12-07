@@ -79,6 +79,8 @@ export const tasksRoute = new Hono()
                 success: true,
                 data: mapDrizzleToApiTask(newTask),
             };
+            console.log("Response:", response)
+            console.log("Data:", newTask)
 
             return c.json(response, 201);
         } catch (error) {

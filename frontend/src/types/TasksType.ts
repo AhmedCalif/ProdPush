@@ -54,7 +54,8 @@ export interface TaskWithRelations extends Omit<Task, 'assignedTo'> {
 }
 
 
- export interface TasksResponse {
-  success: boolean;
+export interface TasksResponse {
   data: Task[];
+  success: boolean;
+  error?: string;
 }

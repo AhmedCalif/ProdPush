@@ -5,9 +5,11 @@ import {
   getTasksQueryOptions,
   updateTask
 } from "@/lib/tasks"
+import type { ApiResponse } from '@/types/ApiTypes';
+import type { Task } from '@/types/TasksType';
 
 export function useTasksQuery() {
-  return useQuery(getTasksQueryOptions)
+ return useQuery<ApiResponse<Task[]>, Error>(getTasksQueryOptions);
 }
 
 export function useCreateTaskMutation() {

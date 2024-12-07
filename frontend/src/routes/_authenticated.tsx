@@ -58,17 +58,17 @@ const AuthenticatedLayout = () => {
     return <WelcomePage />;
   }
 
-  return (
-    <div className="flex justify-center w-full">
-      <div className="w-full max-w-2xl px-4">
+   return (
+    <div className="relative min-h-screen w-full">
+      <div className="pb-20">
         <Outlet />
       </div>
-      <div>
-        <BottomNav />
-      </div>
+      <BottomNav />
     </div>
   );
 }
+
+
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
     const queryClient = context.queryClient
