@@ -1,8 +1,9 @@
-'use client'
+'use client';
 
 import { Calendar, MoreHorizontal, Pencil, Trash2, Plus } from 'lucide-react';
-import { useTasksQuery, useUpdateTaskMutation, useCreateTaskMutation, useDeleteTaskMutation } from '../hooks/useTasks';
+import { useTasksQuery, useUpdateTaskMutation, useCreateTaskMutation, useDeleteTaskMutation } from '@/hooks/useTasks';
 import { useAuth } from '@/hooks/useAuth';
+import { useProjects } from '@/hooks/useProject';
 import { TaskPriority, TaskStatus, Task, CreateTaskInput } from '@/types/TasksType';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -29,6 +30,38 @@ import {
 import { Textarea } from "./ui/textarea";
 import { useState } from 'react';
 
+
+function ProjectSelector({ onProjectSelect }: { onProjectSelect: (projectId: number | null) => void }) {
+  const { projects } = useProjects();
+  const [selectedProject, setSelectedProject] = useState<number | null>(null);
+
+  if (!projects?.length) return null;
+
+  const handleProjectChange = (value: string) => {
+    const projectId = Number(value);
+    setSelectedProject(projectId);
+    onProjectSelect(projectId);
+  };
+
+  return (
+    <Select
+      value={selectedProject?.toString()}
+      onValueChange={handleProjectChange}
+    >
+      <SelectTrigger className="w-[200px] dark:bg-zinc-800 dark:border-gray-700">
+        <SelectValue placeholder="Select project" />
+      </SelectTrigger>
+      <SelectContent>
+        {projects.map((project) => (
+          <SelectItem key={project.id} value={project.id.toString()}>
+            {project.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
 interface Column {
   id: TaskStatus;
   title: string;
@@ -40,6 +73,7 @@ const columns: Column[] = [
   { id: TaskStatus.IN_PROGRESS, title: 'In Progress', color: 'from-blue-500/20 to-cyan-500/20' },
   { id: TaskStatus.COMPLETED, title: 'Done', color: 'from-green-500/20 to-emerald-500/20' }
 ];
+
 
 interface TaskCardProps {
   task: Task;
@@ -114,6 +148,7 @@ function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
   );
 }
 
+
 interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -124,12 +159,20 @@ interface TaskDialogProps {
   title: string;
 }
 
-function TaskDialog({ open, onOpenChange, onSubmit, initialData, status, isLoading, title }: TaskDialogProps) {
+function TaskDialog({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData,
+  status,
+  isLoading,
+  title
+}: TaskDialogProps) {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     description: initialData?.description || '',
     priority: initialData?.priority || TaskPriority.MEDIUM,
-    status: status
+    status
   });
 
   const handleSubmit = () => {
@@ -169,7 +212,7 @@ function TaskDialog({ open, onOpenChange, onSubmit, initialData, status, isLoadi
               <SelectTrigger className="w-full dark:bg-zinc-800 dark:border-gray-700">
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
-              <SelectContent className="dark:bg-zinc-800">
+              <SelectContent>
                 <SelectItem value={TaskPriority.LOW}>Low</SelectItem>
                 <SelectItem value={TaskPriority.MEDIUM}>Medium</SelectItem>
                 <SelectItem value={TaskPriority.HIGH}>High</SelectItem>
@@ -234,7 +277,7 @@ function Column({ column, tasks, onDrop, onEdit, onDelete, onAdd }: ColumnProps)
                  border border-gray-200/50 dark:border-gray-700 shadow-sm
                  bg-gradient-to-b ${column.color} backdrop-blur-sm`}
     >
-      <div className="p-4 flex justify-between  items-center border-b dark:border-gray-700/50
+      <div className="p-4 flex justify-between items-center border-b dark:border-gray-700/50
                     backdrop-blur-sm rounded-t-lg bg-white/80 dark:bg-zinc-800/80">
         <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           {column.title}
@@ -246,7 +289,7 @@ function Column({ column, tasks, onDrop, onEdit, onDelete, onAdd }: ColumnProps)
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 bg-white"
+          className="h-8 w-8 p-0 bg-white dark:bg-zinc-800"
           onClick={() => onAdd(column.id)}
         >
           <Plus className="h-4 w-4" />
@@ -268,31 +311,48 @@ function Column({ column, tasks, onDrop, onEdit, onDelete, onAdd }: ColumnProps)
 
 export function KanbanBoard() {
   const { user } = useAuth();
+  const { projects } = useProjects();
   const { data: tasksResponse, isLoading } = useTasksQuery();
   const updateMutation = useUpdateTaskMutation();
   const createMutation = useCreateTaskMutation();
   const deleteMutation = useDeleteTaskMutation();
 
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [addingStatus, setAddingStatus] = useState<TaskStatus | null>(null);
 
-  const handleDrop = async (taskId: number, newStatus: TaskStatus) => {
-    const task = tasksResponse?.data?.find(t => t.id === taskId);
-    if (task && task.status !== newStatus) {
-      await updateMutation.mutateAsync({
-        ...task,
-        status: newStatus
-      });
+  const selectedProject = projects?.find(p => p.id === selectedProjectId);
+
+  const handleAddTask = async (data: Partial<Task>) => {
+    if (!addingStatus || !data.title || !selectedProject) return;
+
+    try {
+      const newTask: CreateTaskInput = {
+        title: data.title,
+        description: data.description ?? null,
+        status: addingStatus,
+        priority: data.priority ?? TaskPriority.MEDIUM,
+        projectId: selectedProject.id,
+        assignedTo: null,
+        dueDate: null
+      };
+
+      await createMutation.mutateAsync(newTask);
+      setIsAddingTask(false);
+      setAddingStatus(null);
+    } catch (error) {
+      console.error('Failed to create task:', error);
     }
   };
 
   const handleEditTask = async (data: Partial<Task>) => {
-    if (!taskToEdit) return;
+    if (!taskToEdit || !selectedProject) return;
     await updateMutation.mutateAsync({
       ...taskToEdit,
-      ...data
+      ...data,
+      projectId: selectedProject.id
     });
     setTaskToEdit(null);
   };
@@ -302,24 +362,6 @@ export function KanbanBoard() {
     await deleteMutation.mutateAsync({ id: taskToDelete.id });
     setTaskToDelete(null);
   };
-
-  const handleAddTask = async (data: Partial<Task>) => {
-  if (!addingStatus || !data.title) return;
-
-  const newTask: CreateTaskInput = {
-    title: data.title,
-    description: data.description || null,
-    status: addingStatus,
-    priority: data.priority || TaskPriority.MEDIUM,
-    projectId: 1,
-    assignedTo: null,
-    dueDate: null
-  };
-
-  await createMutation.mutateAsync(newTask);
-  setIsAddingTask(false);
-  setAddingStatus(null);
-};
 
   if (isLoading) {
     return (
@@ -331,40 +373,74 @@ export function KanbanBoard() {
     );
   }
 
-  const tasks = tasksResponse?.data || [];
+  const tasks = tasksResponse?.data?.filter(task => task.projectId === selectedProjectId) || [];
   const groupedTasks: Record<TaskStatus, Task[]> = columns.reduce((acc, column) => {
     acc[column.id] = tasks.filter(task => task.status === column.id);
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
+  const handleDrop = async (taskId: number, newStatus: TaskStatus) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task && task.status !== newStatus && selectedProject) {
+      await updateMutation.mutateAsync({
+        ...task,
+        status: newStatus,
+        projectId: selectedProject.id
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-zinc-900 dark:to-zinc-800">
       <div className="max-w-[1800px] mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {user?.name}
-          </h1>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Welcome back, {user?.name}
+            </h1>
+            <div className="flex items-center gap-4">
+              <ProjectSelector onProjectSelect={setSelectedProjectId} />
+              {selectedProjectId && (
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {tasks.length} tasks
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-6 overflow-x-auto pb-6">
-          {columns.map(column => (
-            <Column
-              key={column.id}
-              column={column}
-              tasks={groupedTasks[column.id] || []}
-              onDrop={handleDrop}
-              onEdit={setTaskToEdit}
-              onDelete={setTaskToDelete}
-              onAdd={(status) => {
-                setAddingStatus(status);
-                setIsAddingTask(true);
-              }}
-            />
-          ))}
-        </div>
+        {selectedProjectId ? (
+          <div className="flex gap-6 overflow-x-auto pb-6">
+            {columns.map(column => (
+              <Column
+                key={column.id}
+                column={column}
+                tasks={groupedTasks[column.id] || []}
+                onDrop={handleDrop}
+                onEdit={setTaskToEdit}
+                onDelete={setTaskToDelete}
+                onAdd={(status) => {
+                  setAddingStatus(status);
+                  setIsAddingTask(true);
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-[60vh]">
+            <div className="text-center space-y-2">
+              <p className="text-lg text-gray-600 dark:text-gray-300">
+                Select a project to view its tasks
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Choose a project from the dropdown above to get started
+              </p>
+            </div>
+          </div>
+        )}
 
         <TaskDialog
-        open={isAddingTask}
+          open={isAddingTask}
           onOpenChange={setIsAddingTask}
           onSubmit={handleAddTask}
           status={addingStatus || TaskStatus.TODO}

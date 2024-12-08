@@ -21,7 +21,8 @@ const mapDrizzleToApiNote = (note: DrizzleNote): Note => ({
   content: note.content,
   userId: String(note.userId),
   createdAt: new Date(note.createdAt).toISOString(),
-  updatedAt: new Date(note.updatedAt).toISOString()
+  updatedAt: new Date(note.updatedAt).toISOString(),
+  projectId: note.projectId
 });
 
 export const notesRoute = new Hono()
@@ -95,7 +96,7 @@ export const notesRoute = new Hono()
           content: JSON.stringify(data.content),
           userId: String(data.userId),
           createdAt: now,
-          updatedAt: now
+          updatedAt: now,
         })
         .returning();
 
