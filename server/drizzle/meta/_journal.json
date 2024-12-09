@@ -15,6 +15,20 @@
       "when": 1733712123610,
       "tag": "0001_narrow_lilandra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1733716959375,
+      "tag": "0002_familiar_rictor",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1733722204420,
+      "tag": "0003_cynical_vermin",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import { projects, users, tasks,  } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { projects, tasks } from "../db/schema";
+import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import { zValidator } from '@hono/zod-validator';
 import type { ApiResponse } from '@frontend/types/ApiTypes';
@@ -9,19 +9,16 @@ import {
   type Project,
   type CreateProjectInput,
   ProjectStatus
-} from  "@frontend/types/ProjectTypes"
+} from "@frontend/types/ProjectTypes"
 import type { Task, TaskStatus } from "@frontend/types/TasksType"
-
+import { getUser } from '@/kinde';
 
 const projectSchema = z.object({
   name: z.string().min(1),
   description: z.string().nullable(),
-  ownerId: z.string(),
   status: z.nativeEnum(ProjectStatus).nullable(),
   dueDate: z.coerce.date().nullable()
 });
-
-
 
 const mapDbTaskToApiTask = (dbTask: typeof tasks.$inferSelect): Task => ({
   id: dbTask.id,
@@ -35,12 +32,30 @@ const mapDbTaskToApiTask = (dbTask: typeof tasks.$inferSelect): Task => ({
   createdAt: new Date(dbTask.createdAt).toISOString()
 });
 
+const requireAuth = async (c: any) => {
+  const user = c.get('user');
+  if (!user) {
+    return c.json({
+      success: false,
+      error: "Authentication required"
+    }, 401);
+  }
+  return null;
+};
+
 export const projectsRoute = new Hono()
+  .use('*', getUser)
   .get("/", async (c) => {
     try {
+      const authError = await requireAuth(c);
+      if (authError) return authError;
+
+      const user = c.get('user');
+
       const projectsList = await db
         .select()
-        .from(projects);
+        .from(projects)
+        .where(eq(projects.ownerId, user.id));
 
       const projectsWithRelations = await Promise.all(
         projectsList.map(async (p) => {
@@ -48,7 +63,6 @@ export const projectsRoute = new Hono()
             .select()
             .from(tasks)
             .where(eq(tasks.projectId, p.id));
-
 
           return {
             id: p.id,
@@ -59,7 +73,6 @@ export const projectsRoute = new Hono()
             dueDate: p.dueDate ? new Date(p.dueDate).toISOString() : null,
             createdAt: new Date(p.createdAt).toISOString(),
             tasks: projectTasks.map(mapDbTaskToApiTask),
-
           };
         })
       );
@@ -79,14 +92,21 @@ export const projectsRoute = new Hono()
       }, 500);
     }
   })
-
   .get("/:id", async (c) => {
     try {
+      const authError = await requireAuth(c);
+      if (authError) return authError;
+
+      const user = c.get('user');
       const id = Number(c.req.param("id"));
+
       const [project] = await db
         .select()
         .from(projects)
-        .where(eq(projects.id, id));
+        .where(and(
+          eq(projects.id, id),
+          eq(projects.ownerId, user.id)
+        ));
 
       if (!project) {
         return c.json({
@@ -100,8 +120,6 @@ export const projectsRoute = new Hono()
         .from(tasks)
         .where(eq(tasks.projectId, project.id));
 
-
-
       const response: ApiResponse<Project> = {
         success: true,
         data: {
@@ -113,7 +131,6 @@ export const projectsRoute = new Hono()
           dueDate: project.dueDate ? new Date(project.dueDate).toISOString() : null,
           createdAt: new Date(project.createdAt).toISOString(),
           tasks: projectTasks.map(mapDbTaskToApiTask),
-
         }
       };
 
@@ -129,28 +146,20 @@ export const projectsRoute = new Hono()
 
   .post("/", zValidator('json', projectSchema), async (c) => {
     try {
-      const data = await c.req.valid('json') as CreateProjectInput;
-      const userExists = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.id, data.ownerId!))
-        .get();
+      const authError = await requireAuth(c);
+      if (authError) return authError;
 
-      if (!userExists) {
-        return c.json({
-          success: false,
-          error: `User with ID ${data.ownerId} not found`
-        }, 400);
-      }
+      const user = c.get('user');
+      const data = await c.req.valid('json') as CreateProjectInput;
 
       const [newProject] = await db
         .insert(projects)
         .values({
           name: data.name,
-          description: data.description,
-          ownerId: data.ownerId,
-          status: data.status,
-          dueDate: data.dueDate,
+          description: data.description || null,
+          ownerId: user.id,
+          status: data.status || null,
+          dueDate: data.dueDate || null,
           createdAt: new Date()
         })
         .returning();
@@ -176,8 +185,13 @@ export const projectsRoute = new Hono()
     }
   })
 
+
   .patch("/:id", zValidator('json', projectSchema.partial()), async (c) => {
     try {
+      const authError = await requireAuth(c);
+      if (authError) return authError;
+
+      const user = c.get('user');
       const id = Number(c.req.param("id"));
       const data = await c.req.valid('json');
 
@@ -186,11 +200,13 @@ export const projectsRoute = new Hono()
         .set({
           name: data.name,
           description: data.description,
-          ownerId: data.ownerId,
           status: data.status,
           dueDate: data.dueDate
         })
-        .where(eq(projects.id, id))
+        .where(and(
+          eq(projects.id, id),
+          eq(projects.ownerId, user.id)
+        ))
         .returning();
 
       if (!updatedProject) {
@@ -223,10 +239,18 @@ export const projectsRoute = new Hono()
 
   .delete("/:id", async (c) => {
     try {
+      const authError = await requireAuth(c);
+      if (authError) return authError;
+
+      const user = c.get('user');
       const id = Number(c.req.param("id"));
+
       const [deletedProject] = await db
         .delete(projects)
-        .where(eq(projects.id, id))
+        .where(and(
+          eq(projects.id, id),
+          eq(projects.ownerId, user.id)
+        ))
         .returning();
 
       if (!deletedProject) {

@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Loader2, Plus, Trash } from 'lucide-react';
-import { DeleteProjectInput, ProjectStatus } from '@/types/ProjectTypes';
+import { DeleteProjectInput, ProjectStatus, CreateProjectInput } from '@/types/ProjectTypes';
 import { useAuth } from '@/hooks/useAuth';
 
 const ProjectsPage = () => {
- const {deleteProject} = useProjects()
+  const { deleteProject } = useProjects();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     projectName: '',
@@ -27,6 +27,9 @@ const ProjectsPage = () => {
 
   const { user } = useAuth();
   const { projects, isLoading, error, createProject, isCreating } = useProjects();
+
+  // Filter projects to only show user's own projects
+  const userProjects = projects?.filter(project => project.ownerId === user?.id);
 
   const validateForm = () => {
     let isValid = true;
@@ -76,7 +79,7 @@ const ProjectsPage = () => {
       return;
     }
 
-    const newProject = {
+    const newProject: CreateProjectInput = {
       name: formData.projectName.trim(),
       description: formData.description.trim(),
       ownerId: user.id,
@@ -84,7 +87,6 @@ const ProjectsPage = () => {
       dueDate: formData.dueDate,
       tasks: [],
       notes: []
-
     };
 
     try {
@@ -104,6 +106,18 @@ const ProjectsPage = () => {
     }
   };
 
+  const handleDeleteProject = async (id: number, e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent the Link navigation
+    e.stopPropagation(); // Prevent event bubbling
+
+    try {
+      const deleteInput: DeleteProjectInput = { id };
+      await deleteProject(deleteInput);
+    } catch (error) {
+      console.error('Failed to delete project:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -119,14 +133,7 @@ const ProjectsPage = () => {
       </div>
     );
   }
-const handleDeleteProject = async (id: number) => {
-    try {
-      const deleteInput: DeleteProjectInput = { id };
-      await deleteProject(deleteInput);
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-    }
-}
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -191,11 +198,11 @@ const handleDeleteProject = async (id: number) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects?.length ? (
-          projects.map((project) => (
+        {userProjects?.length ? (
+          userProjects.map((project) => (
             <Link
               key={project.id}
-            to="/project/$id"
+              to="/project/$id"
               params={{ id: project.id.toString() }}
               className="block hover:no-underline"
             >
@@ -224,13 +231,12 @@ const handleDeleteProject = async (id: number) => {
                       {project.status}
                     </span>
                   </div>
-                    <Button
-                    onClick={() => {
-                      handleDeleteProject(project.id)
-                    }}
-                    className='mt-4 bg-red-500' >
-                      <Trash className="w-4 h-4"></Trash>
-                    </Button>
+                  <Button
+                    onClick={(e) => handleDeleteProject(project.id, e)}
+                    className="mt-4 bg-red-500 hover:bg-red-600"
+                  >
+                    <Trash className="w-4 h-4" />
+                  </Button>
                 </CardContent>
               </Card>
             </Link>

@@ -77,7 +77,6 @@ export interface APIProfile {
     family_name: string;
     updated_at: number;
     email_verified: boolean;
-    preferred_username: string | null;
     createdAt: string;
     bio?: string | null;
     avatar?: string | null;
@@ -86,4 +85,5 @@ export interface APIProfile {
 export interface UpdateProfileInput {
     bio?: string | null;
     avatar?: string | null;
+    createdAt: string
 }
