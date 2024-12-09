@@ -14,7 +14,6 @@ const authRoute = new Hono()
       return c.redirect(loginUrl.toString());
     } catch (error) {
       console.error("Login error:", error);
-      return c.redirect(`${BASE_URL}/?error=login_failed`);
     }
   })
   .get("/register", async (c) => {
@@ -23,7 +22,6 @@ const authRoute = new Hono()
       return c.redirect(registerUrl.toString());
     } catch (error) {
       console.error("Register error:", error);
-      return c.redirect(`${BASE_URL}/?error=register_failed`);
     }
   })
   .get("/callback", async (c: Context) => {
@@ -78,7 +76,6 @@ const authRoute = new Hono()
         return c.redirect(BASE_URL);
       } catch (error) {
         console.error("Processing error:", error);
-        return c.redirect(`${BASE_URL}/?error=processing_failed`);
       }
     } catch (error) {
       console.error("Callback error:", {
@@ -86,7 +83,6 @@ const authRoute = new Hono()
         message: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined
       });
-      return c.redirect(`${BASE_URL}/?error=auth_failed`);
     }
   })
   .get("/logout", async (c) => {
@@ -96,7 +92,6 @@ const authRoute = new Hono()
       return c.redirect(logoutUrl.toString());
     } catch (error) {
       console.error("Logout error:", error);
-      return c.redirect(`${BASE_URL}/?error=logout_failed`);
     }
   })
   .get("/me", getUser, async (c) => {
