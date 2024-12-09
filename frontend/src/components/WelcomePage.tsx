@@ -44,9 +44,9 @@ export default function WelcomePage() {
             </div>
             <h2 className="text-3xl font-bold">Welcome back!</h2>
             <p className="text-xl text-gray-600">You're all set to boost your productivity.</p>
-            <a href="/dashboard">
+            <a href="/">
               <Button size="lg">
-                Go to Dashboard
+                Go to HomePage
               </Button>
             </a>
           </div>
