@@ -8,11 +8,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { DeleteTaskInput, Task, TaskStatus, CreateTaskInput, UpdateTaskInput } from "../types/TasksType"
 import { ArrowLeft, Plus, Pencil, X, Check, Trash2Icon } from 'lucide-react'
 import {
-  useTasksQuery,
   useCreateTaskMutation,
   useUpdateTaskMutation,
   useDeleteTaskMutation
 } from '@/hooks/useTasks'
+import { useAuth } from '@/hooks/useAuth'
+import { useProjects } from '@/hooks/useProject'
 
 interface EditingTask {
   id: number;
@@ -21,15 +22,18 @@ interface EditingTask {
 }
 
 function TaskManager() {
-  const { data } = useTasksQuery()
-  const tasks = data?.data || []
+  const { user } = useAuth();
+  const {projects} = useProjects()
+  const allTasks = projects?.reduce((tasks: Task[], project) => {
+    return [...tasks, ...(project.tasks || [])]
+  }, [])
   const createTask = useCreateTaskMutation()
   const updateTask = useUpdateTaskMutation()
   const deleteTask = useDeleteTaskMutation()
   const [activeFilter, setActiveFilter] = useState<'all' | 'todo' | 'in-progress' | 'completed'>('all')
   const [editingTask, setEditingTask] = useState<EditingTask | null>(null)
 
-  const filteredTasks = tasks.filter((task: Task) => {
+  const filteredTasks = allTasks?.filter((task: Task) => {
     if (activeFilter === 'all') return true
     if (activeFilter === 'todo') return task.status === TaskStatus.TODO
     if (activeFilter === 'in-progress') return task.status === TaskStatus.IN_PROGRESS
@@ -49,7 +53,6 @@ function TaskManager() {
     }
   }
 
-
   const handleDeleteTask = async (id: number) => {
     try {
       const deleteInput: DeleteTaskInput = { id }
@@ -60,12 +63,15 @@ function TaskManager() {
   }
 
   const handleCreateTask = async () => {
+    if (!user?.id) return
+
     try {
       const createInput: CreateTaskInput = {
         title: "New Task",
         description: "Task description",
         status: TaskStatus.TODO,
-        dueDate: new Date().toISOString()
+        dueDate: new Date().toISOString(),
+        assignedTo: user.id
       }
       await createTask.mutateAsync(createInput)
     } catch (error) {
@@ -100,14 +106,14 @@ function TaskManager() {
       console.error('Failed to update task:', error)
     }
   }
-return (
+  return (
     <div className="max-w-lg mx-auto min-h-screen bg-white">
       <main className="p-6">
         <div className="flex items-center justify-between mb-6">
           <Button variant="ghost" size="icon" className="text-gray-600 bg-white hover:text-indigo-600">
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-lg font-medium text-gray-800">Today's Tasks</h1>
+          <h1 className="text-lg font-medium text-gray-800">My Tasks</h1>
           <div className="w-9" />
         </div>
 
@@ -136,7 +142,6 @@ return (
           ))}
         </div>
 
-        {/* Filters */}
         <div className="flex gap-2 mb-6">
           {['all', 'todo', 'in-progress', 'completed'].map((filter) => (
             <button
@@ -153,8 +158,9 @@ return (
             </button>
           ))}
         </div>
+
         <div className="space-y-3">
-          {filteredTasks.map((task: Task) => (
+          {filteredTasks?.map((task: Task) => (
             <Card key={task.id} className="bg-white border border-gray-100">
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
@@ -197,7 +203,7 @@ return (
                     ) : (
                       <>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-gray-800  flex-1">{task.title}</h3>
+                          <h3 className="font-medium text-gray-800 flex-1">{task.title}</h3>
                           <div className="flex gap-1">
                             <Button
                               variant="ghost"
@@ -269,4 +275,5 @@ return (
     </div>
   )
 }
+
 export default TaskManager

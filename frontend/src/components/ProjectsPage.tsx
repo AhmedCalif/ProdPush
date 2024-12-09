@@ -28,7 +28,6 @@ const ProjectsPage = () => {
   const { user } = useAuth();
   const { projects, isLoading, error, createProject, isCreating } = useProjects();
 
-  // Filter projects to only show user's own projects
   const userProjects = projects?.filter(project => project.ownerId === user?.id);
 
   const validateForm = () => {
@@ -107,8 +106,8 @@ const ProjectsPage = () => {
   };
 
   const handleDeleteProject = async (id: number, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent the Link navigation
-    e.stopPropagation(); // Prevent event bubbling
+    e.preventDefault();
+    e.stopPropagation();
 
     try {
       const deleteInput: DeleteProjectInput = { id };
