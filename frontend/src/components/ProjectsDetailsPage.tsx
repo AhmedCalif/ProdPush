@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from "@/components/ui/button";
-import { Calendar, CheckSquare, Loader2 } from 'lucide-react';
+import { CheckSquare, Loader2 } from 'lucide-react';
 import { TaskStatus } from '@/types/TasksType';
 import {
   Dialog,
@@ -29,11 +29,6 @@ import { projectKeys } from '@/hooks/useProject';
 interface AddTaskDialogProps {
   projectId: number;
   onTaskAdded: () => void;
-}
-
-interface AddNoteDialogProps {
-  projectId: number;
-  onNoteAdded: () => void;
 }
 
 const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ projectId, onTaskAdded }) => {
@@ -71,7 +66,6 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ projectId, onTaskAdded })
         throw new Error(errorData.error || 'Failed to create task');
       }
 
-      const { data } = await response.json();
 
       await queryClient.invalidateQueries({
         queryKey: projectKeys.detail(projectId)
@@ -152,96 +146,7 @@ const AddTaskDialog: React.FC<AddTaskDialogProps> = ({ projectId, onTaskAdded })
   );
 };
 
-const AddNoteDialog: React.FC<AddNoteDialogProps> = ({ projectId, onNoteAdded }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const response = await fetch('/api/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title,
-          content,
-          projectId: Number(projectId),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create note');
-      }
-
-      const { data } = await response.json();
-
-      await queryClient.invalidateQueries({
-        queryKey: projectKeys.detail(projectId)
-      });
-
-      setTitle('');
-      setContent('');
-      setIsOpen(false);
-      onNoteAdded();
-
-      await queryClient.refetchQueries({
-        queryKey: projectKeys.detail(projectId)
-      });
-    } catch (error) {
-      console.error('Error creating note:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700">Add Note</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add New Note</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add Note'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 const ProjectDetailPage: React.FC = () => {
   const { id } = useParams({ from: '/_authenticated/project/$id' });
@@ -254,11 +159,7 @@ const ProjectDetailPage: React.FC = () => {
     });
   };
 
-  const handleNoteAdded = async () => {
-    await queryClient.refetchQueries({
-      queryKey: projectKeys.detail(parseInt(id))
-    });
-  };
+
 
   useEffect(() => {
     queryClient.refetchQueries({
@@ -304,10 +205,6 @@ const ProjectDetailPage: React.FC = () => {
         </div>
         <p className="text-gray-600">{project.description}</p>
         <div className="flex items-center gap-4 mt-4">
-          <span className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Due: {project.dueDate ? new Date(project.dueDate).toLocaleDateString() : 'No due date'}
-          </span>
           <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
             {project.status || 'No status'}
           </span>

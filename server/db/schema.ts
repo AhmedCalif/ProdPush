@@ -44,23 +44,7 @@ export const tasks = sqliteTable('tasks', {
     .$defaultFn(() => new Date()),
 });
 
-export const notes = sqliteTable('notes', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
-  content: text('content').notNull(),
-  projectId: integer('project_id')
-    .references(() => projects.id)
-    .notNull(),  // Added projectId reference
-  userId: text('user_id')
-    .references(() => users.id)
-    .notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-});
+
 
 export const projectMembers = sqliteTable('project_members', {
   projectId: integer('project_id').references(() => projects.id).notNull(),
@@ -78,5 +62,4 @@ export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type ProjectMember = typeof projectMembers.$inferSelect;
 export type NewProjectMember = typeof projectMembers.$inferInsert;
-export type Note = typeof notes.$inferSelect;
-export type NewNote = typeof notes.$inferInsert;
+

@@ -4,7 +4,7 @@ import { cors } from "hono/cors"
 import { tasksRoute } from "../server/routes/tasks";
 import { projectsRoute } from "../server/routes/projects";
 import { authRoute } from "../server/routes/auth";
-import { notesRoute } from "../server/routes/notes";
+
 
 
 
@@ -23,7 +23,6 @@ app.use('*', cors({
 
 const apiRoutes = app.basePath('/api').route('/tasks', tasksRoute)
 .route("/projects", projectsRoute)
-.route("/notes", notesRoute)
 .route("/auth", authRoute)
 
 

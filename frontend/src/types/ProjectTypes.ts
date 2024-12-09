@@ -12,7 +12,6 @@ export interface Project {
   dueDate: string | null;
   createdAt: string;
   tasks: Task[]
-  notes: Note[]
 }
 
 export enum ProjectStatus {

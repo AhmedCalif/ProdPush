@@ -111,7 +111,7 @@ export function useProject(id: number) {
     },
   });
 
-  const deleteProjectMutation = useMutation({
+ const deleteProjectMutation = useMutation({
     mutationFn: (deleteData: DeleteProjectInput) => deleteProject(deleteData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });

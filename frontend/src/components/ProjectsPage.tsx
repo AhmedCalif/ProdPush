@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useProjects } from '@/hooks/useProject';
 import { Link } from '@tanstack/react-router';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Loader2, Plus } from 'lucide-react';
-import { ProjectStatus } from '@/types/ProjectTypes';
+import { Calendar, Loader2, Plus, Trash } from 'lucide-react';
+import { DeleteProjectInput, ProjectStatus } from '@/types/ProjectTypes';
 import { useAuth } from '@/hooks/useAuth';
 
 const ProjectsPage = () => {
+ const {deleteProject} = useProjects()
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
     projectName: '',
@@ -118,7 +119,14 @@ const ProjectsPage = () => {
       </div>
     );
   }
-
+const handleDeleteProject = async (id: number) => {
+    try {
+      const deleteInput: DeleteProjectInput = { id };
+      await deleteProject(deleteInput);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
+}
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -216,6 +224,13 @@ const ProjectsPage = () => {
                       {project.status}
                     </span>
                   </div>
+                    <Button
+                    onClick={() => {
+                      handleDeleteProject(project.id)
+                    }}
+                    className='mt-4 bg-red-500' >
+                      <Trash className="w-4 h-4"></Trash>
+                    </Button>
                 </CardContent>
               </Card>
             </Link>
