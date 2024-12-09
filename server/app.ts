@@ -12,20 +12,20 @@ app.use("*", logger());
 app.use('*', cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'Cookie'], // Added headers needed for auth
+  allowHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   credentials: true,
-  exposeHeaders: ['Content-Length', 'X-Request-Id', 'Set-Cookie'], // Added Set-Cookie
+  exposeHeaders: ['Content-Length', 'X-Request-Id', 'Set-Cookie'],
   maxAge: 3600,
 }));
 
 
-const api = new Hono()
+const apiRoutes = app.basePath("/api")
   .route("/tasks", tasksRoute)
   .route("/projects", projectsRoute)
   .route("/auth", authRoute);
 
 
-app.route("/api", api);
+app.route("/api", apiRoutes);
 
 export default app;
-export type ApiRoutes = typeof api;
+export type ApiRoutes = typeof apiRoutes;

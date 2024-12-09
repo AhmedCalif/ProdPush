@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { APIProfile, UpdateProfileInput} from '@/types/UserTypes';
-import { api } from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
+import type { APIProfile}  from '@/types/UserTypes';
+
 import { getMe } from '@/lib/auth';
 
 const profileKeys = {
@@ -8,8 +8,7 @@ const profileKeys = {
   details: () => [...profileKeys.all, 'details'] as const,
 };
 
-export function useProfile() {  
-  const queryClient = useQueryClient();
+export function useProfile() {
 
   const {
     data: profile,
@@ -26,32 +25,10 @@ export function useProfile() {
       return response.data as APIProfile;
     },
   });
-
-  const updateProfileMutation = useMutation<APIProfile, Error, UpdateProfileInput>({
-    mutationFn: async (input) => {
-      const response = await api.auth.me.$patch({
-        json: input
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
-      }
-
-      const data = await response.json();
-      return data.data;
-    },
-    onSuccess: (updatedProfile) => {
-      queryClient.setQueryData<APIProfile>(profileKeys.details(), updatedProfile);
-    },
-  });
-
   return {
     profile,
     isLoading,
     error,
     refetch,
-    updateProfile: updateProfileMutation.mutate,
-    isUpdateProfilePending: updateProfileMutation.isPending,
-    updateProfileError: updateProfileMutation.error,
   };
 }
